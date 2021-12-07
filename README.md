@@ -23,9 +23,18 @@ Technical enviroment:
         4. The user find item by filters or search.
         5. The user select chosen item.
         6. Item adds to the field.
-        7. User drag this item to right position.     
+        7. User drag this item to right position.    
 
+    * Order choosed items
+        1. User pressed order button
+        2. The system opens the cart window.
+        3. The user cancels items in the cart list, that he does not want to order right now
+        4. If the user clicks the order button, the system opens the order registration window
+        5. If the user clicks the cancel button, the system returns him to the main constructor window
 
+    
+
+![alt text](C:\Users\drtta\Downloads\wIZI1KNl9Ic.jpg?raw=true "Title")
 
 # Requiroments:
     F-1. System must provide user to add up to 100 items. 
