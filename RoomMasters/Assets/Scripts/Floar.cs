@@ -12,7 +12,7 @@ public class Floar : MonoBehaviour
     private GameObject[,] grid;
     private GameObject selectedObject;
     private Camera mainCamera;
-    private float deltaTime = 2;
+    private float deltaTime = 0.3f;
     bool dragging = false;
 
     private void Awake()
@@ -44,11 +44,16 @@ public class Floar : MonoBehaviour
         selection.OutlineMode = Outline.Mode.OutlineVisible;
     }
 
+
+
     void Update()
     {
         if (selectedObject != null)
         {
-            if (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Began || Input.GetTouch(0).phase == TouchPhase.Moved))
+            var selectedObjectSizeX = selectedObject.GetComponent<Furniture>().Size.x;
+            var selectedObjectSizeY = selectedObject.GetComponent<Furniture>().Size.y;
+            if (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Began
+                || Input.GetTouch(0).phase == TouchPhase.Moved))
             {
                 Touch touch = Input.touches[0];
                 Vector3 positionOfTouch = touch.position;
@@ -56,17 +61,18 @@ public class Floar : MonoBehaviour
                 var groundPlane = new Plane(Vector3.up, Vector3.zero);
 
                 Ray ray = mainCamera.ScreenPointToRay(positionOfTouch);
-                if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    if (hit.collider.gameObject == selectedObject)
+                    if (groundPlane.Raycast(ray, out float position))
                     {
-                        if (groundPlane.Raycast(ray, out float position))
-                        {
-                            Vector3 worldPosition =
-                                ((Ray)mainCamera.ScreenPointToRay(positionOfTouch)).GetPoint(position);
+                        Vector3 worldPosition =
+                            ((Ray)mainCamera.ScreenPointToRay(positionOfTouch)).GetPoint(position);
+                        worldPosition.x = Mathf.RoundToInt(worldPosition.x);
+                        worldPosition.z = Mathf.RoundToInt(worldPosition.z);
+                        if (worldPosition.x - selectedObjectSizeX < GridSize.x - 1
+                            && worldPosition.z - selectedObjectSizeY < GridSize.y - 1
+                            && worldPosition.x >= 0 && worldPosition.z >= 0)
 
                             selectedObject.transform.position = worldPosition;
-                        }
                     }
                 }
             }
