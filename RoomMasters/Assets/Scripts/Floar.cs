@@ -25,9 +25,9 @@ public class Floar : MonoBehaviour
     public void CreateNewObject(GameObject furniturePrehub)
     {
         if (selectedObject != null)
-            Destroy(selectedObject);
+            CancelSelection();
 
-        selectedObject = Instantiate(furniturePrehub);
+        SelectObject(Instantiate(furniturePrehub));
     }
     public void CancelSelection()
     {
@@ -36,6 +36,14 @@ public class Floar : MonoBehaviour
         foreach (var button in buttons) button.SetActive(false);
     }
 
+    public void RotateSelectedObject()
+    {
+        var rotate = Quaternion.Euler(0, (selectedObject.transform.rotation.eulerAngles.y + 90) % 360, 0);
+        Debug.Log($"{rotate.x}, {rotate.y}, {rotate.z}");
+        selectedObject.transform.rotation = rotate;
+    }
+
+
     private void SelectObject(GameObject obj)
     {
         foreach (var button in buttons) button.SetActive(true);
@@ -43,8 +51,6 @@ public class Floar : MonoBehaviour
         var selection = selectedObject.GetComponent<Outline>();
         selection.OutlineMode = Outline.Mode.OutlineVisible;
     }
-
-
 
     void Update()
     {
