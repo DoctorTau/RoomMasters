@@ -4,6 +4,7 @@ public class Furniture : MonoBehaviour
 {
     [SerializeField] public Vector2 Size = Vector2Int.one;
     [SerializeField] private bool IsSelected = true;
+    [SerializeField] Renderer MainRender;
 
     private void OnDrawGizmosSelected()
     {

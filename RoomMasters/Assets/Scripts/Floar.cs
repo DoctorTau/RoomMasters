@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FurnitureStruct;
 
 public class Floar : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class Floar : MonoBehaviour
     private Camera mainCamera;
     private float deltaTime = 0.3f;
     bool dragging = false;
+    private StartPosition startPosition;
 
     private void Awake()
     {
@@ -67,6 +69,15 @@ public class Floar : MonoBehaviour
         return true;
     }
 
+    public void CancelMovement()
+    {
+        if (selectedObject == null) return;
+
+        selectedObject.transform.position = startPosition.position;
+        selectedObject.transform.rotation = startPosition.rotation;
+        CancelSelection();
+    }
+
     public void CancelSelection()
     {
         var selectedObjectPosition = selectedObject.transform.position;
@@ -91,14 +102,31 @@ public class Floar : MonoBehaviour
     {
         foreach (var button in buttons) button.SetActive(true);
         selectedObject = obj;
+        startPosition = new StartPosition(selectedObject.transform.position, selectedObject.transform.rotation);
         var selection = selectedObject.GetComponent<Outline>();
+        DeleteObjectFromGrid(selectedObject);
         selection.OutlineMode = Outline.Mode.OutlineVisible;
+    }
+
+    private void SetTransparentForObject(bool available)
+    {
+        if (selectedObject == null) return;
+        var selection = selectedObject.GetComponent<Outline>();
+        if (!available)
+            selection.OutlineColor = Color.red;
+        else
+            selection.OutlineColor = Color.yellow;
     }
 
     void Update()
     {
         if (selectedObject != null)
         {
+            var selectedObjectPosition = selectedObject.transform.position;
+            SetTransparentForObject(CheckCellsForObject(selectedObject,
+                                                        (int)selectedObjectPosition.x,
+                                                        (int)selectedObjectPosition.z));
+
             var selectedObjectSizeX = selectedObject.GetComponent<Furniture>().Size.x;
             var selectedObjectSizeY = selectedObject.GetComponent<Furniture>().Size.y;
             if (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Began
