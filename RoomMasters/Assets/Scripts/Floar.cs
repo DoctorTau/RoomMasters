@@ -2,13 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Floar : MonoBehaviour
 {
     public Vector2Int GridSize = new Vector2Int(10, 10);
     public List<GameObject> buttons;
-
     private GameObject[,] grid;
     private GameObject selectedObject;
     private Camera mainCamera;
@@ -29,9 +27,55 @@ public class Floar : MonoBehaviour
 
         SelectObject(Instantiate(furniturePrehub));
     }
+
+    private void SetObjectToGrid(int placeX, int placeY)
+    {
+        if (selectedObject == null) return;
+
+        Debug.Log("Here");
+
+        Furniture furniture = selectedObject.GetComponent<Furniture>();
+        for (int x = 0; x < furniture.Size.x; x++)
+        {
+            for (int y = 0; y < furniture.Size.y; y++)
+            {
+                grid[placeX + x, placeY + y] = selectedObject;
+                Debug.Log("Done" + grid[placeX + x, placeY + y]);
+            }
+        }
+    }
+
+    private void DeleteObjectFromGrid(GameObject obj)
+    {
+        for (int i = 0; i < grid.GetLength(0); i++)
+        {
+            for (int j = 0; j < grid.GetLength(1); j++)
+                if (grid[i, j] == obj) grid[i, j] = null;
+        }
+    }
+
+    private bool CheckCellsForObject(GameObject obj, int placeX, int placeY)
+    {
+        Furniture furniture = selectedObject.GetComponent<Furniture>();
+        for (int x = 0; x < furniture.Size.x; x++)
+        {
+            for (int y = 0; y < furniture.Size.y; y++)
+            {
+                if (grid[placeX + x, placeY + y] != null) return false;
+            }
+        }
+        return true;
+    }
+
     public void CancelSelection()
     {
+        var selectedObjectPosition = selectedObject.transform.position;
+        if (!CheckCellsForObject(selectedObject, (int)selectedObjectPosition.x, (int)selectedObjectPosition.z)) return;
+        Debug.Log(!CheckCellsForObject(selectedObject, (int)selectedObjectPosition.x, (int)selectedObjectPosition.z));
         selectedObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineHidden;
+        DeleteObjectFromGrid(selectedObject);
+        SetObjectToGrid((int)selectedObjectPosition.x, (int)selectedObjectPosition.z);
+        Debug.Log($"{(int)selectedObjectPosition.x}, {(int)selectedObjectPosition.z}");
         selectedObject = null;
         foreach (var button in buttons) button.SetActive(false);
     }
@@ -42,7 +86,6 @@ public class Floar : MonoBehaviour
         Debug.Log($"{rotate.x}, {rotate.y}, {rotate.z}");
         selectedObject.transform.rotation = rotate;
     }
-
 
     private void SelectObject(GameObject obj)
     {
@@ -77,7 +120,6 @@ public class Floar : MonoBehaviour
                         if (worldPosition.x - selectedObjectSizeX < GridSize.x - 1
                             && worldPosition.z - selectedObjectSizeY < GridSize.y - 1
                             && worldPosition.x >= 0 && worldPosition.z >= 0)
-
                             selectedObject.transform.position = worldPosition;
                     }
                 }
@@ -104,11 +146,6 @@ public class Floar : MonoBehaviour
                 }
             }
         }
-
-
-
-
     }
-
 }
 
