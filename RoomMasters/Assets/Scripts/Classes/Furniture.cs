@@ -6,7 +6,7 @@ public class Furniture : MonoBehaviour
     [SerializeField] private bool IsSelected = true;
     [SerializeField] Renderer MainRender;
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         for (int x = 0; x < Size.x; x++)
         {

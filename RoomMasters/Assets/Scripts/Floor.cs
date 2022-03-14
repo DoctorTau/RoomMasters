@@ -187,8 +187,8 @@ public class Floor : MonoBehaviour
                     worldPosition.x = Mathf.RoundToInt(worldPosition.x);
                     worldPosition.z = Mathf.RoundToInt(worldPosition.z);
                     // Check if on floor boarders.
-                    if (worldPosition.x - selectedObjectSizeX < GridSize.x - 1
-                        && worldPosition.z - selectedObjectSizeY < GridSize.y - 1
+                    if (worldPosition.x + selectedObjectSizeX <= GridSize.x
+                        && worldPosition.z + selectedObjectSizeY <= GridSize.y
                         && worldPosition.x >= 0 && worldPosition.z >= 0)
                         // Set new object position.
                         selectedObject.transform.position = worldPosition;
