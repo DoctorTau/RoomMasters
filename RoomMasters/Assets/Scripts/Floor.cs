@@ -96,8 +96,7 @@ public class Floor : MonoBehaviour
     {
         if (selectedObject == null) return;
 
-        selectedObject.transform.position = startPosition.position;
-        selectedObject.transform.rotation = startPosition.rotation;
+        SetStartPositionToSelectedObject();
         CancelSelection();
     }
 
@@ -115,6 +114,22 @@ public class Floor : MonoBehaviour
         foreach (var button in buttons) button.SetActive(false); // Hide the buttons.
     }
 
+    private void SavePositionOfSelectedObject()
+    {
+        if (selectedObject == null) return;
+        startPosition = new StartPosition(selectedObject.transform.position,
+                                          selectedObject.transform.rotation,
+                                          selectedObject.GetComponent<Furniture>().Size);
+    }
+
+    private void SetStartPositionToSelectedObject()
+    {
+        if (selectedObject == null) return;
+        selectedObject.transform.position = startPosition.position;
+        selectedObject.transform.rotation = startPosition.rotation;
+        selectedObject.GetComponent<Furniture>().Size = startPosition.Cells;
+    }
+
     /// <summary>
     /// Selects an object.
     /// </summary>
@@ -123,7 +138,7 @@ public class Floor : MonoBehaviour
     {
         foreach (var button in buttons) button.SetActive(true); // Show context buttons.
         selectedObject = obj; // Set selected object to variable.
-        startPosition = new StartPosition(selectedObject.transform.position, selectedObject.transform.rotation); // Saves the position of the selected object.
+        SavePositionOfSelectedObject();
         var selection = selectedObject.GetComponent<Outline>(); // Gets selection of selected object.
         DeleteObjectFromGrid(selectedObject); // Delete selected object from grid.
         selection.OutlineMode = Outline.Mode.OutlineVisible; // Shows selection color.
@@ -135,6 +150,7 @@ public class Floor : MonoBehaviour
     public void RotateSelectedObject()
     {
         var rotate = Quaternion.Euler(0, (selectedObject.transform.rotation.eulerAngles.y + 90) % 360, 0);
+        selectedObject.GetComponent<Furniture>().Rotate();
         selectedObject.transform.rotation = rotate;
     }
 

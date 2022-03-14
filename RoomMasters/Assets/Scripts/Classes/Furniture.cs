@@ -19,4 +19,6 @@ public class Furniture : MonoBehaviour
             }
         }
     }
+
+    public void Rotate() => (Size.x, Size.y) = (Size.y, Size.x);
 }
