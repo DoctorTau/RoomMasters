@@ -6,14 +6,14 @@ using FurnitureStruct;
 
 public class Floor : MonoBehaviour
 {
-    public Vector2Int GridSize = new Vector2Int(10, 10);
-    public List<GameObject> buttons;
-    private GameObject[,] grid;
+    [SerializeField] public Vector2Int GridSize = new Vector2Int(10, 10);
+    [SerializeField] public List<GameObject> buttons;
+    [SerializeField] private GameObject[,] grid;
     private GameObject selectedObject;
-    private Camera mainCamera;
-    private float deltaTime = 0.3f;
-    bool dragging = false;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private float deltaTime = 0.3f;
     private StartPosition startPosition;
+    [SerializeField] public GameObject SizeChanger;
 
     private void Awake()
     {
@@ -21,6 +21,67 @@ public class Floor : MonoBehaviour
         mainCamera = Camera.main;
         foreach (var button in buttons) button.SetActive(false);
     }
+
+    public void ChangeRoomSize()
+    {
+        var changer = this.GetComponent<SizeChanger>();
+        if (!changer.isAwailable) return;
+        int leftLength = changer.leftLength;
+        int rightLength = changer.rightLength;
+        Vector3 newPos = new Vector3(this.transform.position.x,
+                                     this.transform.position.y,
+                                     this.transform.position.z);
+        Vector3 newScale = new Vector3(leftLength, this.transform.localScale.y, rightLength);
+        int leftDiff = leftLength - (int)this.transform.localScale.x;
+        int rightDiff = rightLength - (int)this.transform.localScale.z;
+        if (leftDiff < 0 || rightDiff < 0)
+            ClearObjectOnBoarder(leftLength, rightLength);
+
+        newPos.x -= Math.Sign(rightDiff) * (float)leftDiff / 2;
+        newScale.x = leftLength;
+        newPos.z -= Math.Sign(rightDiff) * (float)rightDiff / 2;
+        newScale.z = rightLength;
+
+        (GridSize.x, GridSize.y) = (leftLength, rightLength);
+        GameObject[,] newGrid = new GameObject[leftLength, rightLength];
+        for (int i = 0; i < Math.Min(leftLength, GridSize.x); i++)
+        {
+            for (int j = 0; j < Math.Min(rightLength, GridSize.y); j++)
+            {
+                try
+                {
+                    newGrid[i, j] = grid[i, j];
+                }
+                catch (IndexOutOfRangeException)
+                {
+
+                }
+            }
+        }
+
+        grid = newGrid;
+        this.transform.localScale = newScale;
+        this.transform.position = newPos;
+    }
+
+    private void ClearObjectOnBoarder(int newSizeLeft, int newSizeRight)
+    {
+        for (int i = 0; i < GridSize.x; i++)
+        {
+            for (int j = 0; j < GridSize.y; j++)
+            {
+                if ((i >= newSizeLeft || j >= newSizeRight) && grid[i, j] != null)
+                {
+                    var objToDestroy = grid[i, j];
+                    DeleteObjectFromGrid(objToDestroy);
+                    Destroy(objToDestroy);
+                }
+
+            }
+
+        }
+    }
+
 
     /// <summary>
     /// Adds new object to the room. 
@@ -32,6 +93,15 @@ public class Floor : MonoBehaviour
             CancelSelection();
 
         SelectObject(Instantiate(furniturePrehub));
+    }
+
+    public void DestroyObject()
+    {
+        if (selectedObject != null)
+        {
+            Destroy(selectedObject);
+            CancelSelection();
+        }
     }
 
     /// <summary>
